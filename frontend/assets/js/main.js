@@ -219,38 +219,63 @@ document.getElementById("financeForm").addEventListener("submit", function(event
 });
 
 //Login Function
-document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function () {
 
-  // Function to load content dynamically based on the page clicked
-  function loadPage(page) {
-      fetch(`/frontend/views/${page}`)
-          .then(response => response.text())
-          .then(html => {
-              // Insert the loaded HTML content into the main container
-              document.querySelector(".main").innerHTML = html;
-          })
-          .catch(error => console.error("Error loading page:", error));
-  }
+        // Function to load content dynamically based on the page clicked
+        function loadPage(page) {
+            const absolutePage = new URL(page, window.location.origin).href;
+            fetch(absolutePage)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    // Insert the loaded HTML content into the main container
+                    document.querySelector(".main").innerHTML = html;
+                })
+                .catch(error => console.error("Error loading page:", error));
+        }
 
-  // Add event listeners for navigation links (using the class .nav-link)
-  document.querySelectorAll(".nav-link").forEach(link => {
-      link.addEventListener("click", function (event) {
-          event.preventDefault(); // Prevent default action (full page reload)
-          const page = this.getAttribute("href");
+        // Add event listeners for navigation links (using the class .nav-link)
+        document.querySelectorAll(".nav-link").forEach(link => {
+            link.addEventListener("click", function (event) {
+                event.preventDefault(); // Prevent default action (full page reload)
+                const page = this.getAttribute("href");
 
-          // Dynamically load the content
-          loadPage(page);
+                // Dynamically load the content
+                loadPage(page);
 
-          // Update the URL without reloading the page
-          window.history.pushState({ path: page }, "", page);
-      });
+                // Update the URL without reloading the page
+                window.history.pushState({ path: page }, "", page);
+            });
+        });
+
+        // Handle back/forward navigation
+        window.addEventListener("popstate", function (event) {
+            if (event.state && event.state.path) {
+                loadPage(event.state.path);
+            }
+        });
+    });
+
+
+    //User data
+    document.addEventListener("DOMContentLoaded", function() {
+      // Example user data (in a real app, fetch this from a database)
+      const userProfile = {
+          username: "JohnDoe",
+          income: 5000,
+          expenses: 2000
+      };
+  
+      // Update the profile page with user data
+      document.getElementById("username").textContent = userProfile.username;
+      document.getElementById("income").textContent = userProfile.income;
+      document.getElementById("expenses").textContent = userProfile.expenses;
   });
-
-  // Load the default page (e.g., Login or Dashboard) when the user first enters the site or refreshes the page
-  const currentPage = window.location.pathname.split("/").pop() || "login.html";
-  loadPage(currentPage);
-
-});
+  
 
 
   /**
